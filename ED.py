@@ -148,30 +148,3 @@ class Hamiltonian(Basis):
 
         return a
 
-
-"""start_time = time.time()
-basis = Basis(2, 2, 1, 1)"""
-
-# MAIN PROGRAM
-"""h = Hamiltonian(4, 4, 1, 1)
-A = h.H_int()
-B = h.H_kin(h.lattice1D())
-D = (A.tocsr() + B.tocsr())
-#vals, vecs = sp.sparse..eigsh(D, k=3)
-#print(vals)
-
-A = identity(10, format='csc')
-A.setdiag(range(1, 11))
-
-vals,vecs = eigs(D, 20, sigma=0)
-
-valss, vecss = eigsh(D, k=10)
-print(vals)
-print()
-print(valss)
-
-
-#print("--- %s seconds ---" % (time.time() - start_time))
-
-# print(A[:1, ])  # first row, all columns
-#  print(A[:,2])  # all rows, second column"""
