@@ -32,6 +32,7 @@ def opSize(M, N):
 def opGen(M, a, I):
     """ Generating many body creatin annihilation operators
         returns [....,all crea.,....,all annih.,....]
+        Could not figure out a way to automatize the kronecker products link!!!!! Thus only added config I work with.
     """
     if M==4:
         link = [[a, I, I, I], [I, a, I, I], [I, I, a, I], [I, I, I, a]]
