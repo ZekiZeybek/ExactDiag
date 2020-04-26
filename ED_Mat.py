@@ -4,12 +4,15 @@ import numpy as np
 import math
 from scipy.sparse import diags
 from scipy.sparse.linalg import eigsh
+from math import floor
+
+#link(M) for generating kronecker product list contributed by github.com/hsaidc
 
 # Defining global variables
 
-M = 9  # number of sites on a given lattice
-N = 6  # number of bosons (Available : 4,6,9,15,16)
-l_ver = 3  # vertical length of the lattice
+M = 6  # number of sites on a given lattice
+N = 2  # number of bosons 
+l_ver = 2  # vertical length of the lattice
 l_hor = 3  # horizontal length of the lattice
 a = diags([math.sqrt(N) for N in range(1, N + 1)], 1)  # a
 I = sp.identity(N + 1)  # spars.te identity matrix
@@ -29,88 +32,50 @@ def opSize(M, N):
     return np.power((N + 1), M)
 
 
-def opGen(M, a, I):
+def link(M):
+    identity_matrix = I
+    random_matrix = a
+
+    m = M - 1
+    number_of_identity_matrix = m
+    number_of_sub_lists = number_of_identity_matrix + 1
+    total_number_of_elements = number_of_sub_lists * number_of_sub_lists
+
+    link = []
+    tmp = []
+
+    for i in range(0, total_number_of_elements):
+        row = floor(i / number_of_sub_lists)
+        column = i % number_of_sub_lists
+        if row == column:
+            tmp.append(random_matrix)
+        else:
+            tmp.append(identity_matrix)
+        if column == number_of_identity_matrix:
+            link.append(tmp)
+            tmp = []
+
+    return link
+
+def opGen(M):
     """ Generating many body creatin annihilation operators
         returns [....,all crea.,....,all annih.,....]
-        Could not figure out a way to automatize the kronecker products link!!!!! Thus only added config I work with.
     """
-    if M==4:
-        link = [[a, I, I, I], [I, a, I, I], [I, I, a, I], [I, I, I, a]]
-        l=[]
-        for sub in link:
-            for i in range(M - 1):
-                sub[0] = sp.kron(sub[0], sub[i + 1])
+    l=[]
+    for sub in link(M):
+        for i in range(M-1):
+            sub[0] = sp.kron(sub[0], sub[i + 1])
 
-            l.append(sub[0])
-        l_T = [i.T for i in l]
-        return l_T + l
-
-    elif M==6:
-        link = [[a,I,I,I,I,I],[I,a,I,I,I,I],[I,I,a,I,I,I],[I,I,I,a,I,I],[I,I,I,I,a,I],[I,I,I,I,I,a]]
-        l=[]
-        for sub in link:
-            for i in range(M - 1):
-                sub[0] = sp.kron(sub[0], sub[i + 1])
-
-            l.append(sub[0])
-        l_T = [i.T for i in l]
-        return l_T + l
-
-
-    elif M == 15:
-        link = [[a,I,I,I,I,I,I,I,I,I,I,I,I,I,I],[I,a,I,I,I,I,I,I,I,I,I,I,I,I,I],[I,I,a,I,I,I,I,I,I,I,I,I,I,I,I], \
-                [I,I,I,a,I,I,I,I,I,I,I,I,I,I,I],[I,I,I,I,a,I,I,I,I,I,I,I,I,I,I],[I,I,I,I,I,a,I,I,I,I,I,I,I,I,I], \
-                [I,I,I,I,I,I,a,I,I,I,I,I,I,I,I],[I,I,I,I,I,I,I,a,I,I,I,I,I,I,I],[I,I,I,I,I,I,I,I,a,I,I,I,I,I,I], \
-                [I,I,I,I,I,I,I,I,I,a,I,I,I,I,I],[I,I,I,I,I,I,I,I,I,I,a,I,I,I,I],[I,I,I,I,I,I,I,I,I,I,I,a,I,I,I], \
-                [I,I,I,I,I,I,I,I,I,I,I,I,a,I,I],[I,I,I,I,I,I,I,I,I,I,I,I,I,a,I],[I,I,I,I,I,I,I,I,I,I,I,I,I,I,a]]
-
-        l = []
-        for sub in link:
-            for i in range(M - 1):
-                sub[0] = sp.kron(sub[0], sub[i + 1])
-
-            l.append(sub[0])
-        l_T = [i.T for i in l]
-        return l_T + l
-
-
-    elif M == 16:
-        link = [[a,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I],[I,a,I,I,I,I,I,I,I,I,I,I,I,I,I,I],[I,I,a,I,I,I,I,I,I,I,I,I,I,I,I,I], \
-                [I,I,I,a,I,I,I,I,I,I,I,I,I,I,I,I],[I,I,I,I,a,I,I,I,I,I,I,I,I,I,I,I],[I,I,I,I,I,a,I,I,I,I,I,I,I,I,I,I], \
-                [I,I,I,I,I,I,a,I,I,I,I,I,I,I,I,I],[I,I,I,I,I,I,I,a,I,I,I,I,I,I,I,I],[I,I,I,I,I,I,I,I,a,I,I,I,I,I,I,I], \
-                [I,I,I,I,I,I,I,I,I,a,I,I,I,I,I,I],[I,I,I,I,I,I,I,I,I,I,a,I,I,I,I,I],[I,I,I,I,I,I,I,I,I,I,I,a,I,I,I,I], \
-                [I,I,I,I,I,I,I,I,I,I,I,I,a,I,I,I],[I,I,I,I,I,I,I,I,I,I,I,I,I,a,I,I],[I,I,I,I,I,I,I,I,I,I,I,I,I,I,a,I], \
-                [I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,a]]
-
-        l = []
-        for sub in link:
-            for i in range(M - 1):
-                sub[0] = sp.kron(sub[0], sub[i + 1])
-
-            l.append(sub[0])
-        l_T = [i.T for i in l]
-        return l_T + l
-
-
-    elif M==9:
-        link = [[a,I,I,I,I,I,I,I,I],[I,a,I,I,I,I,I,I,I],[I,I,a,I,I,I,I,I,I],[I,I,I,a,I,I,I,I,I],[I,I,I,I,a,I,I,I,I],\
-                [I,I,I,I,I,a,I,I,I],[I,I,I,I,I,I,a,I,I],[I,I,I,I,I,I,I,a,I],[I,I,I,I,I,I,I,I,a]]
-        l=[]
-        for sub in link:
-            for i in range(M - 1):
-                sub[0] = sp.kron(sub[0], sub[i + 1])
-
-            l.append(sub[0])
-        l_T = [i.T for i in l]
-        return l_T + l
-
+        l.append(sub[0])
+    l_T = [i.T for i in l]
+    return l_T + l
 
 def N_op():
     """Number operator corresponding to N particles"""
 
     N_op = sp.csr_matrix((opSize(M, N), opSize(M, N)))
     for i in range(M):
-        N_op += opGen(M, a, I)[i] * opGen(M, a, I)[i + M] #M=4
+        N_op += opGen(M)[i] * opGen(M)[i + M] #M=4
 
     return N_op
 
@@ -122,7 +87,7 @@ def H_kin(a, I, t):
     hopp_link = hopGen(M,l_ver,l_hor)
     H_kin = sp.csr_matrix((opSize(M,N),opSize(M,N)))
     for sub in hopp_link:
-        H_kin += opGen(M,a,I)[sub[0]]*opGen(M,a,I)[sub[1] + M] # M=4
+        H_kin += opGen(M)[sub[0]]*opGen(M)[sub[1] + M] # M=4
 
     return H_kin.dot(t)
 
@@ -130,8 +95,8 @@ def H_int():
     """Operator form of interaction hamiltonian"""
     H_int = sp.csr_matrix((opSize(M, N), opSize(M, N)))
     for i in range(M):
-        H_int += opGen(M, a, I)[i] * opGen(M, a, I)[i + M]* opGen(M, a, I)[i] * opGen(M, a, I)[i + M]\
-                 - opGen(M, a, I)[i] * opGen(M, a, I)[i + M]
+        H_int += opGen(M)[i] * opGen(M)[i + M]* opGen(M)[i] * opGen(M)[i + M]\
+                 - opGen(M)[i] * opGen(M)[i + M]
 
     return H_int.dot(U * 0.5)
 
@@ -156,7 +121,7 @@ def H_all():
 def Eig():
     """ Eigenvalues are returned """
 
-    E1, E1_vec = eigsh(H_all(), k=dimHil(M,N)-1)
+    E1 = eigsh(H_all(), k=dimHil(M,N)-1, return_eigenvectors=False)
 
     return E1
 
